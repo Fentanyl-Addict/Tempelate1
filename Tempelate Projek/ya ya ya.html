@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Welcome — xxxxx</title>
+<link rel="stylesheet" href="ya ya ya.css">
+</head>
+<body>
+  <div class="wrap" role="main" aria-labelledby="welcome-title">
+    <canvas id="space" aria-hidden="true"></canvas>
+
+    <!-- decorative planets (pure CSS + JS positioning) -->
+    <div class="planets" aria-hidden="true">
+      <div id="planet-a" class="planet" style="width:120px;height:120px;left:8%;top:12%;background:radial-gradient(circle at 30% 30%, rgba(126,249,182,0.95), rgba(155,140,255,0.9) 45%, rgba(2,6,20,0.02) 70%);"></div>
+      <div id="planet-b" class="planet" style="width:80px;height:80px;right:6%;top:18%;background:radial-gradient(circle at 40% 35%, rgba(255,255,255,0.9), rgba(155,140,255,0.75) 50%, rgba(2,6,20,0.02) 80%);opacity:0.9;"></div>
+      <div id="planet-c" class="planet" style="width:60px;height:60px;left:12%;bottom:18%;background:radial-gradient(circle at 30% 25%, rgba(255,240,210,0.95), rgba(255,200,120,0.85) 45%, rgba(2,6,20,0.02) 75%);opacity:0.9;"></div>
+    </div>
+
+    <div class="card" role="region" aria-label="Welcome card">
+      <h1 id="welcome-title">Welcome To <span class="accent">Naspad Studios</span></h1>
+      <div class="subtitle">A neon galaxy vibe — explore the cosmos, log in, or join the crew.</div>
+
+      <div class="actions" role="navigation" aria-label="Primary actions">
+        <a class="btn ghost" id="explore-btn" href="explore.html" role="button"> 
+          <span class="spark" aria-hidden="true"></span>
+          <span>Explore</span>
+        </a>
+
+        <a class="btn ghost" id="login-btn" href="/login" role="button">Login</a>
+        <a class="btn ghost" id="register-btn" href="daftar.html" role="button">Daftar</a>
+      </div>
+
+      <div class="micro">Website Official NasPad Studios</div>
+    </div>
+  </div>
+<script src="ya ya ya.js"></script>
+</body>
+</html>
