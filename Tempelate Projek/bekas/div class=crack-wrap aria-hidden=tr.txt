@@ -1,0 +1,8 @@
+<div class="crack-wrap" aria-hidden="true">
+      <div class="shard anim" style="width:160px;height:60px;left:6%;top:18%;transform:rotate(-12deg);opacity:.95"></div>
+      <div class="shard anim" style="width:220px;height:40px;left:28%;top:12%;transform:rotate(6deg);opacity:.9"></div>
+      <div class="shard anim" style="width:120px;height:48px;left:52%;top:22%;transform:rotate(-6deg);opacity:.92"></div>
+      <div class="shard anim" style="width:260px;height:70px;left:68%;top:18%;transform:rotate(10deg);opacity:.86"></div>
+      <div class="crack-line anim" style="height:4px;width:36%;left:20%;top:46%;border-radius:2px;"></div>
+      <div class="crack-line anim" style="height:3px;width:22%;left:54%;top:52%;border-radius:2px;transform:rotate(8deg);"></div>
+    </div>

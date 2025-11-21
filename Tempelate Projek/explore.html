@@ -1,0 +1,672 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>NasPad Studios — Explore</title>
+<style>
+/* -------------------- Root / theme -------------------- */
+:root{
+  --bg-dark:#030717;
+  --card-bg: rgba(255,255,255,0.03);
+  --accent: #7ef9b6; /* hijau */
+  --accent2:#9b8cff; /* ungu */
+  --muted: #9fb7c9;
+  --glass: rgba(255,255,255,0.02);
+}
+
+html,body{
+  height:100%;
+  margin:0;
+  font-family:Inter,ui-sans-serif,system-ui,-apple-system,'Segoe UI',Roboto,Arial;
+  color:#eaf9ff;
+  background:radial-gradient(1200px 600px at 20% 15%, rgba(126,249,182,0.015), transparent), 
+              linear-gradient(180deg,var(--bg-dark),#000);
+  overflow-x:hidden;
+}
+
+body{
+  opacity:0;
+  transition:opacity .9s ease;
+}
+
+body.loaded{
+  opacity:1;
+}
+
+/* full-screen star canvas */
+canvas#sky{
+  position:fixed;
+  inset:0;
+  width:100vw;
+  height:100vh;
+  z-index:0;
+  display:block;
+}
+
+/* Header */
+.header{
+  position:fixed;
+  top:0;
+  left:0;
+  right:0;
+  z-index:12;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:18px 36px;
+  background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+  backdrop-filter:blur(6px);
+  border-bottom:1px solid rgba(255,255,255,0.02);
+}
+
+.brand{
+  display:flex;
+  gap:12px;
+  align-items:center;
+}
+
+.logo{
+  width:44px;
+  height:44px;
+  border-radius:10px;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  box-shadow:0 6px 20px rgba(124,140,255,0.08);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight:800;
+  color:#02131a;
+}
+
+.nav-menu {
+    display: flex;
+    gap: 14px;
+}
+
+.nav-btn {
+    padding: 9px 16px;
+    border-radius: 10px;
+    font-weight: 700;
+    text-decoration: none;
+    color: var(--muted);
+    background: rgba(255,255,255,0.02);
+    border: 1px solid rgba(255,255,255,0.06);
+    transition: all .25s ease;
+}
+
+/* Hover glow */
+.nav-btn:hover {
+    color: #fff;
+    transform: translateY(-4px);
+    box-shadow: 0 8px 40px rgba(126,249,182,0.18);
+    border-color: rgba(126,249,182,0.25);
+}
+
+/* Active / halaman yang sedang dibuka */
+.nav-btn.active {
+    color: #02131a;
+    background: linear-gradient(90deg, rgba(126,249,182,0.16), rgba(155,140,255,0.16));
+    border-color: rgba(126,249,182,0.35);
+    box-shadow: 0 0 22px rgba(126,249,182,0.45);
+}
+
+.btn-ats {
+  margin-left: 1250px;
+}
+
+
+/* center hero */
+.hero-wrap{
+  position:relative;
+  z-index:10;
+  display:flex;
+  flex-direction: column;
+  align-items:center;
+  justify-content:center;
+  padding:160px 20px 40px;
+  min-height: 100vh;
+}
+
+.hero-section{
+  text-align:center;
+  margin-bottom:80px;
+  width: 100%;
+}
+
+.hero-card{
+  width:min(980px,92vw);
+  padding:56px;
+  border-radius:16px;
+  background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+  backdrop-filter:blur(8px) saturate(120%);
+  box-shadow:0 18px 80px rgba(2,6,23,0.85);
+  border:1px solid rgba(255,255,255,0.03);
+  text-align:center;
+  position:relative;
+  overflow:visible;
+  margin-bottom: 120px;
+}
+
+.title-large{
+  font-size:46px;
+  line-height:1.02;
+  margin:0 0 20px 0;
+  font-weight:900;
+  letter-spacing:-0.02em;
+}
+
+.title-gradient{
+  background:linear-gradient(90deg,var(--accent),var(--accent2));
+  -webkit-background-clip:text;
+  background-clip:text;
+  color:transparent;
+}
+
+.lead{
+  margin:14px 0 22px;
+  color:var(--muted);
+  font-size:15px;
+}
+
+/* section with 3 cards */
+.section-tiles{
+  margin-top:0;
+  padding:28px;
+  border-radius:14px;
+  background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.00));
+  border:1px solid rgba(255,255,255,0.02);
+  display:flex;
+  gap:18px;
+  justify-content:space-between;
+}
+
+.tile{
+  flex:1;
+  min-width:0;
+  background:linear-gradient(180deg, rgba(255,255,255,0.015), rgba(255,255,255,0.01));
+  border-radius:12px;
+  padding:18px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:12px;
+  position:relative;
+  overflow:hidden;
+}
+
+.tile a {
+    color: inherit;  
+    text-decoration: none;
+}
+
+
+
+.card-img{
+    text-decoration: none;
+  width:100%;
+  height:120px;
+  border-radius:10px;
+  background:linear-gradient(135deg, rgba(255,255,255,0.03), rgba(255,255,255,0.02));
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:var(--muted);
+  font-weight:700;
+}
+
+
+.tile-title{
+  font-weight:800;
+  margin: 0;
+}
+
+.tile-sub{
+    text-decoration: none;
+  font-size:13px;
+  color:var(--muted);
+  margin: 0;
+  text-align: center;
+}
+
+/* 3D crack effect overlay (fragmented shards) */
+.crack-wrap{
+  position:absolute;
+  inset:0;
+  z-index:6;
+  pointer-events:none;
+}
+
+.shard{
+  position:absolute;
+  background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+  backdrop-filter:blur(4px);
+  border-radius:4px;
+  box-shadow:0 8px 30px rgba(0,0,0,0.5);
+  transform-origin:center;
+  opacity:0.85;
+}
+
+.shard.anim{
+  animation:shardFloat 6s ease-in-out infinite;
+}
+
+@keyframes shardFloat{
+  0%{transform:translateY(0) rotate(0) scale(1)}
+  25%{transform:translateY(-6px) rotate(1deg) scale(1.02)}
+  50%{transform:translateY(0) rotate(0) scale(1)}
+  75%{transform:translateY(6px) rotate(-1deg) scale(.98)}
+  100%{transform:translateY(0) rotate(0) scale(1)}
+}
+
+/* subtle glow lines to emulate cracks */
+.crack-line{
+  position:absolute;
+  border-radius:2px;
+  filter:blur(6px);
+  opacity:0.12;
+  background:linear-gradient(90deg,var(--accent),var(--accent2));
+}
+
+.crack-line.anim{
+  animation:glowPulse 2.8s ease-in-out infinite;
+}
+
+@keyframes glowPulse{
+  0%{opacity:.06}
+  50%{opacity:.18}
+  100%{opacity:.06}
+}
+
+/* page footer (large) */
+.footer{
+  position:relative;
+  z-index:10;
+  margin-top:46px;
+  background:linear-gradient(180deg, rgba(0,0,0,0.25), rgba(0,0,0,0.35));
+  padding:40px;
+  border-top:1px solid rgba(255,255,255,0.02);
+  display:flex;
+  gap:28px;
+  align-items:flex-start;
+  justify-content:space-between;
+}
+
+.footer .col{
+  flex:1;
+
+}
+
+.footer .brand-lg{
+
+  display:flex;
+  align-items:center;
+  gap:14px;
+}
+
+.socials{
+  display:flex;
+  gap:12px;
+  margin-top:12px;
+}
+
+.socials a{
+  width:44px;
+  height:44px;
+  border-radius:10px;
+  background:rgba(255,255,255,0.02);
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  color:var(--muted);
+  text-decoration:none;
+  font-weight:700;
+  transition:all .18s;
+}
+
+.socials a:hover{
+  transform:translateY(-6px);
+  box-shadow:0 12px 40px rgba(2,6,23,0.6);
+  color:#fff;
+}
+
+
+/* responsive */
+@media (max-width:920px){
+  .section-tiles{
+    flex-direction:column;
+  }
+  .tile{
+    height:auto;
+  }
+  .title-large{
+    font-size:36px;
+  }
+  .footer{
+    flex-direction: column;
+    gap: 20px;
+  }
+}
+
+@media (max-width:520px){
+  .header{
+    padding:12px 14px;
+  }
+  .hero-card{
+    padding:28px;
+  }
+  .title-large{
+    font-size:28px;
+  }
+  .card-img{
+    height:90px;
+  }
+  .hero-wrap{
+    padding:120px 20px 40px;
+  }
+}
+</style>
+</head>
+<body>
+<canvas id="sky" aria-hidden="true"></canvas>
+
+<header class="header" role="banner">
+  <div class="brand">
+    <div class="logo">NS</div>
+    <div style="line-height:1">
+      <div style="font-weight:800;letter-spacing:-0.02em">NasPad Studios</div>
+      <div style="font-size:12px;color:var(--muted);margin-top:2px">Explore The Website</div>
+    </div>
+    <div class="nav-right nav-menu">
+    <div class="btn-ats">
+    <a href="tempelate.html" class="nav-btn" data-page="template">Template</a>
+    <a href="pembuatan.html" class="nav-btn" data-page="pembuatan">Pembuatan</a>
+    <a href="tentang.html" class="nav-btn" data-page="tentang">Tentang Kami</a>
+    </div>
+</div>
+  </div>
+</header>
+
+<main class="hero-wrap" role="main">
+  <section class="hero-section" aria-label="Welcome">
+    <h1 class="title-large">Welcome To <span class="title-gradient">NasPad Studios</span></h1>
+    <p class="lead">A neon galaxy vibe — explore the cosmos and journey deeper.</p>
+  </section>
+
+  <section class="hero-card" aria-label="Content">
+    <div class="section-tiles">
+
+      <div class="tile">
+        <div class="card-img">
+        <a href="tempelate.html">
+            <img src="img/icon1.png" alt="Template Image" style="width: 150px; height: 115px; border-radius: 10px;">
+        </div>
+        <div class="tile-title">Template</div>
+        <div class="tile-sub">Lihat daftar tempelate</div>
+        </a>
+      </div>
+
+      <div class="tile">
+        <div class="card-img">
+        <a href="pembuatan.html">
+            <img src="img/Tempelate2.png" alt="Pembuatan Image" style="width: 150px; height: 115px; border-radius: 10px;">
+        </div>
+        <div class="tile-title">Pembuatan</div>
+        <div class="tile-sub">Jasa pembuatan konten & projek</div>
+      </div>
+
+      <div class="tile">
+        <div class="card-img">
+        <a href="tentang.html">
+            <img src="img/Tentang.png" alt="Tentang Kami Image" style="width: 125px; height: 100px; border-radius: 10px;">
+        </div>
+        <div class="tile-title">Tentang Kami</div>
+        <div class="tile-sub">Kenali misi & tim kami</div>
+      </div>
+        </a>
+    </div>
+  </section>
+</main>
+
+<footer class="footer" role="contentinfo">
+  <div class="col">
+    <div class="brand-lg">
+      <div class="logo" style="width:54px;height:54px;border-radius:12px">NS</div>
+      <div>
+        <div style="font-weight:900">NasPad Studios</div>
+        <div style="font-size:13px;color:var(--muted)">Official Website Of NasPad Studios</div>
+      </div>
+    </div>
+    <div class="socials" aria-label="Sosial media">
+      <a href="#">
+        <img src="img/Twitter-Logo.png" alt="Twitter Logo" style="width:33px;height:20px">
+      </a>
+      <a href="#">
+        <img src="img/Instagram-Logo.png" alt="Instagram Logo" style="width:20px;height:20px">
+      </a>
+      <a href="#">
+        <img src="img/Facebook-Logo.png" alt="Facebook Logo" style="width:20px;height:20px">
+      </a>
+      <a href="#">
+        <img src="img/WhatsApp-Logo.png" alt="Whatsapp Logo" style="width:20px;height:20px">
+      </a>
+    </div>
+  </div>
+  <div class="col">
+    <div style="font-weight:800;margin-bottom:8px">Kontak</div>
+    <div class="contact-card">
+      <div>Email: arfahksyadnfren@gmail.com</div>
+      <div style="margin-top:6px">Telepon: +62 812-7343-9967</div>
+      <div style="margin-top:6px">Alamat: Yogyakarta, Indonesia</div>
+    </div>
+  </div>
+  <div class="col" style="max-width:320px">
+    <div style="font-weight:800;margin-bottom:8px">Tentang</div>
+    <div style="color:var(--muted);font-size:14px">NasPad Studios membantu kreator & tim membangun projek digital dengan nuansa galaksi dan neon. Kami menerima pembuatan website, aset visual, dan template siap pakai.</div>
+  </div>
+</footer>
+
+<script>
+// Canvas stars initialization
+const canvas = document.getElementById('sky');
+const ctx = canvas.getContext('2d', { alpha:true });
+let W = innerWidth, H = innerHeight, DPR = Math.max(1, devicePixelRatio || 1);
+
+function resizeCanvas(){ 
+  W = innerWidth; 
+  H = innerHeight; 
+  canvas.width = Math.floor(W * DPR); 
+  canvas.height = Math.floor(H * DPR); 
+  canvas.style.width = W + 'px'; 
+  canvas.style.height = H + 'px'; 
+  ctx.setTransform(DPR,0,0,DPR,0,0); 
+}
+
+resizeCanvas();
+const REDUCE = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+let stars=[], connections=[], comets=[];
+
+function rand(min,max){
+  return Math.random()*(max-min)+min;
+}
+
+function init(){ 
+  resizeCanvas(); 
+  stars=[]; 
+  connections=[]; 
+  comets=[]; 
+  const STAR_COUNT = Math.floor(55 * Math.max(0.9, W/1200)); 
+  const palette=['#ffffff','#e9f7ff','#cfe9ff','#f6e8b1','#dfefff','#bfe9ff']; 
+  
+  for(let i=0;i<STAR_COUNT;i++){ 
+    const x=rand(20,W-20), y=rand(20,H-20), r=rand(0.6,2.6), color=palette[Math.floor(rand(0,palette.length))]; 
+    stars.push({x,y,r,color,phase:rand(0,Math.PI*2),tw:rand(0.2,1.4),vx:rand(-0.02,0.02),vy:rand(-0.02,0.02)}); 
+  }
+  
+  for(let i=0;i<stars.length;i++){ 
+    for(let j=i+1;j<stars.length && connections.length < stars.length*1.4;j++){ 
+      const dx=stars[i].x-stars[j].x, dy=stars[i].y-stars[j].y; 
+      const d=Math.hypot(dx,dy); 
+      if(d<260 && Math.random()>0.45) connections.push([i,j]); 
+    } 
+  }
+}
+
+function spawnComet(){ 
+  if(REDUCE) return; 
+  const startX=rand(W*0.05,W*0.95); 
+  const startY=rand(-80,-20); 
+  const angle=rand(0.2,0.7); 
+  const speed=rand(4,9); 
+  comets.push({
+    x:startX,
+    y:startY,
+    vx:Math.cos(angle)*speed,
+    vy:Math.sin(angle)*speed,
+    len:rand(80,260),
+    life:0,
+    alpha:rand(0.12,0.28)
+  }); 
+  if(comets.length>3) comets.shift(); 
+}
+
+let lastSpawn=0;
+
+function render(t){ 
+  ctx.clearRect(0,0,W,H);
+  
+  // soft nebula
+  const g = ctx.createRadialGradient(W*0.2,H*0.18,40,W*0.6,H*0.5, Math.max(W,H)); 
+  g.addColorStop(0,'rgba(126,249,182,0.015)'); 
+  g.addColorStop(0.28,'rgba(155,140,255,0.01)'); 
+  g.addColorStop(1,'rgba(0,0,0,0)'); 
+  ctx.fillStyle=g; 
+  ctx.fillRect(0,0,W,H);
+  
+  // milky band
+  ctx.save(); 
+  ctx.globalCompositeOperation='lighter'; 
+  ctx.fillStyle='rgba(255,255,255,0.015)'; 
+  ctx.beginPath(); 
+  ctx.ellipse(W*0.5,H*0.45,W*0.6,H*0.08,0,0,Math.PI*2); 
+  ctx.fill(); 
+  ctx.restore();
+  
+  // faint stars
+  for(let b=0;b<450;b++){ 
+    const x=(b*37.123)%W; 
+    const y=((b*83.21)%H); 
+    const a=0.02+0.02*Math.sin((t*0.00018)+b); 
+    ctx.fillStyle=`rgba(255,255,255,${a})`; 
+    ctx.fillRect(x,y,1,1); 
+  }
+  
+  // constellation lines
+  ctx.lineWidth=0.9; 
+  for(const [i,j] of connections){ 
+    const a=stars[i], b=stars[j]; 
+    const d=Math.hypot(a.x-b.x,a.y-b.y); 
+    const alpha=Math.max(0,1-d/300)*0.75; 
+    ctx.strokeStyle=`rgba(126,249,182,${alpha*0.22})`; 
+    ctx.beginPath(); 
+    ctx.moveTo(a.x,a.y); 
+    ctx.lineTo(b.x,b.y); 
+    ctx.stroke(); 
+  }
+  
+  // stars
+  const now = t*0.001; 
+  for(const s of stars){ 
+    if(!REDUCE){ 
+      s.x+=s.vx; 
+      s.y+=s.vy; 
+      if(s.x<10) s.x=10; 
+      if(s.x>W-10) s.x=W-10; 
+      if(s.y<10) s.y=10; 
+      if(s.y>H-10) s.y=H-10; 
+    } 
+    s.phase+=0.01*(s.tw); 
+    const tw=0.6+0.4*Math.sin(s.phase*1.7+now*0.8); 
+    const grd=ctx.createRadialGradient(s.x,s.y,0,s.x,s.y,s.r*6); 
+    grd.addColorStop(0, hexWithAlpha(s.color,0.95*tw)); 
+    grd.addColorStop(0.4, hexWithAlpha(s.color,0.35*tw)); 
+    grd.addColorStop(1,'rgba(255,255,255,0)'); 
+    ctx.fillStyle=grd; 
+    ctx.beginPath(); 
+    ctx.arc(s.x,s.y,s.r*2.2,0,Math.PI*2); 
+    ctx.fill(); 
+    ctx.fillStyle=s.color; 
+    ctx.beginPath(); 
+    ctx.arc(s.x,s.y,Math.max(0.6,s.r*0.6),0,Math.PI*2); 
+    ctx.fill(); 
+  }
+  
+  // comets
+  for(let i=comets.length-1;i>=0;i--){ 
+    const c=comets[i]; 
+    c.x+=c.vx; 
+    c.y+=c.vy; 
+    c.life++; 
+    const tx=c.x-c.vx*c.len, ty=c.y-c.vy*c.len; 
+    const grad=ctx.createLinearGradient(c.x,c.y,tx,ty); 
+    grad.addColorStop(0,`rgba(255,255,255,${0.95*c.alpha})`); 
+    grad.addColorStop(1,'rgba(255,255,255,0)'); 
+    ctx.strokeStyle=grad; 
+    ctx.lineWidth=2.4; 
+    ctx.beginPath(); 
+    ctx.moveTo(c.x,c.y); 
+    ctx.lineTo(tx,ty); 
+    ctx.stroke(); 
+    ctx.fillStyle=`rgba(255,255,255,${Math.min(1,0.9*c.alpha+0.1)})`; 
+    ctx.beginPath(); 
+    ctx.arc(c.x,c.y,2.8,0,Math.PI*2); 
+    ctx.fill(); 
+    if(c.x>W+200||c.y>H+200||c.life>400) comets.splice(i,1); 
+  }
+  
+  if(!REDUCE && (t-lastSpawn)>2600 && Math.random()<0.36){ 
+    spawnComet(); 
+    lastSpawn=t; 
+  }
+  
+  requestAnimationFrame(render);
+}
+
+function hexWithAlpha(hex,a){ 
+  const r=parseInt(hex.slice(1,3),16); 
+  const g=parseInt(hex.slice(3,5),16); 
+  const b=parseInt(hex.slice(5,7),16); 
+  return `rgba(${r},${g},${b},${a})`; 
+}
+
+// Initialize and start animation
+init(); 
+requestAnimationFrame(render);
+
+window.addEventListener('resize', ()=>{ 
+  init(); 
+  resizeCanvas(); 
+}); 
+
+// subtle parallax for shards based on mouse
+const hero = document.querySelector('.hero-card');
+if(hero) {
+  hero.addEventListener('mousemove', e=>{
+    const r = hero.getBoundingClientRect();
+    const cx = (e.clientX - r.left) / r.width - 0.5; 
+    const cy = (e.clientY - r.top) / r.height - 0.5;
+    document.querySelectorAll('.shard').forEach((s,i)=>{
+      const depth = (i%3)/8 + 0.02; 
+      s.style.transform = `translate3d(${cx*30*depth}px,${cy*24*depth}px,0) rotate(${(i*7)%33}deg)`;
+    });
+  });
+}
+
+// page load
+window.addEventListener('load', ()=>{ 
+  document.body.classList.add('loaded'); 
+});
+</script>
+</body>
+</html>
+

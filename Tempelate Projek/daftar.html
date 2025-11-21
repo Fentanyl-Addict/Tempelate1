@@ -1,0 +1,436 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Daftar — Planetarium Mode</title>
+<style>
+
+
+body {
+  opacity: 0;
+  transition: opacity 1s ease;
+}
+body.loaded {
+  opacity: 1;
+}
+  :root{
+    --bg-dark:#030717;
+    --card-bg: rgba(255,255,255,0.03);
+    --accent: #7ef9b6;
+    --accent2:#9b8cff;
+    --muted: #9fb7c9;
+  }
+  html,body{height:100%;margin:0;background:radial-gradient(1200px 600px at 20% 15%, rgba(126,249,182,0.015), transparent), linear-gradient(180deg,var(--bg-dark),#000);font-family:Inter,ui-sans-serif,system-ui,-apple-system,'Segoe UI',Roboto,Arial;color:#eaf9ff;overflow:hidden}
+  /* canvas takes full screen */
+  canvas#sky { position:fixed; inset:0; width:100vw; height:100vh; z-index:0; display:block; }
+
+  /* central card */
+  .card {
+    position:relative;
+    z-index:10;
+    width: min(420px, 92vw);
+    padding:28px;
+    border-radius:14px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+    backdrop-filter: blur(8px) saturate(120%);
+    box-shadow: 0 12px 50px rgba(2,6,23,0.7);
+    border:1px solid rgba(255,255,255,0.03);
+    margin: 6vh auto 0;
+    text-align:center;
+    margin: 20vh auto;
+  }
+
+  h1.title {
+    margin:0 0 8px 0;
+    font-size:22px;
+    color:#fff;
+    letter-spacing:-0.02em;
+    text-shadow: 0 8px 30px rgba(124,140,255,0.06);
+  }
+  p.lead{margin:0 0 16px 0;color:var(--muted);font-size:14px}
+
+  form { display:flex; flex-direction:column; gap:12px; }
+
+  input[type="email"], input[type="text"], input[type="password"], input[type="date"]{
+    width:100%;
+    padding:11px 12px;
+    border-radius:10px;
+    border:1px solid rgba(255,255,255,0.04);
+    background: rgba(255,255,255,0.02);
+    color: #eaf9ff;
+    font-size:14px;
+    outline:none;
+    transition: box-shadow .18s, background .18s;
+  }
+  input:focus{ box-shadow: 0 0 14px rgba(126,249,182,0.12); background: rgba(255,255,255,0.035); }
+
+  .btn-row{display:flex;gap:10px;justify-content:center;margin-top:6px}
+  .btn {
+    padding:10px 16px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);
+    background: linear-gradient(90deg, rgba(126,249,182,0.06), rgba(155,140,255,0.06));
+    color:#eafff5;font-weight:700;cursor:pointer;
+    transition: transform .18s, box-shadow .18s, filter .18s;
+    position:relative; overflow:visible;
+  }
+  .btn::after{ content:""; position:absolute; inset:0; border-radius:10px; box-shadow:0 0 40px rgba(126,249,182,0.02), 0 0 80px rgba(155,140,255,0.02) inset; opacity:0; transition:opacity .28s; pointer-events:none;}
+  .btn:hover{ transform:translateY(-4px); box-shadow:0 10px 40px rgba(12,22,40,0.6); }
+  .btn:hover::after{ opacity:1; }
+  .btn.primary{ background: linear-gradient(90deg, rgba(126,249,182,0.14), rgba(155,140,255,0.12)); color:#02131a; border:1px solid rgba(126,249,182,0.22); }
+
+  .micro{ font-size:13px;color:var(--muted); margin-top:10px }
+
+  /* welcome screen overlay */
+  .overlay {
+    position:fixed; inset:0; z-index:20; display:flex; align-items:center; justify-content:center;
+    pointer-events:none;
+  }
+  .panel {
+    background: rgba(255,255,255,0.02);
+    border-radius:14px; padding:28px; text-align:center; max-width:680px;
+    color:#001017; backdrop-filter: blur(8px) saturate(120%);
+    transform:scale(.98); opacity:0; transition: all .9s cubic-bezier(.2,.9,.3,1);
+    box-shadow: 0 18px 60px rgba(2,6,23,0.85);
+    border:1px solid rgba(255,255,255,0.04);
+  }
+  .panel.show{ opacity:1; transform:scale(1); pointer-events:auto; }
+
+  .panel h2 { margin:0 0 8px 0; font-size:24px; color: #fff; text-shadow:0 10px 40px rgba(126,249,182,0.06); }
+  .panel p.zodiac { margin:6px 0 0 0; color: #ffd67c; font-weight:700; font-size:18px; }
+
+  /* reduced-motion */
+  @media (prefers-reduced-motion: reduce){
+    *{ transition:none !important; animation:none !important; }
+  }
+
+  /* small screens */
+  @media (max-width:420px){
+    .card{ width:92vw; padding:18px; }
+    .panel{ padding:18px; width:90vw; }
+  }
+
+
+</style>
+</head>
+<body>
+<canvas id="sky" aria-hidden="true"></canvas>
+
+<!-- Card / Form -->
+<div class="card" role="region" aria-label="Daftar">
+  <h1 class="title">Daftar Disini</h1>
+  <p class="lead">Isi data diri dibawah.</p>
+
+  <form id="regForm" autocomplete="off">
+    <input id="email" type="email" placeholder="Email" required />
+    <input id="username" type="text" placeholder="Username" required />
+    <input id="pass" type="password" placeholder="Password" required />
+    <input id="confirm" type="password" placeholder="Confirm Password" required />
+    <input id="dob" type="date" placeholder="Tanggal Lahir" required />
+    <div class="btn-row">
+      <button class="btn" type="reset">Reset</button>
+      <button class="btn primary" type="submit">Daftar</button>
+    </div>
+    <div class="micro">Form ini demo client-side — jangan simpan password nyata di sini.</div>
+  </form>
+</div>
+
+<!-- Welcome overlay (hidden until submit) -->
+<div class="overlay" id="overlay" aria-hidden="true">
+  <div class="panel" id="panel">
+    <h2 id="welcomeText">Welcome, Traveller</h2>
+    <p class="zodiac" id="zodiacText">Your zodiac: —</p>
+    <div style="margin-top:12px;color:var(--muted);font-size:13px">Enjoy the stars ✨</div>
+  </div>
+</div>
+
+<script>
+/* --------------- Planetarium renderer --------------- */
+const canvas = document.getElementById('sky');
+const ctx = canvas.getContext('2d', { alpha:true });
+let W = innerWidth, H = innerHeight, DPR = Math.max(1, devicePixelRatio || 1);
+canvas.width = Math.floor(W * DPR);
+canvas.height = Math.floor(H * DPR);
+canvas.style.width = W + 'px';
+canvas.style.height = H + 'px';
+ctx.setTransform(DPR,0,0,DPR,0,0);
+
+const REDUCE = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+let stars = []; // star objects
+let connections = []; // index pairs
+let comets = [];
+
+function rand(min,max){ return Math.random()*(max-min)+min; }
+
+function initPlanetarium(){
+  W = innerWidth; H = innerHeight;
+  canvas.width = Math.floor(W * DPR);
+  canvas.height = Math.floor(H * DPR);
+  canvas.style.width = W + 'px';
+  canvas.style.height = H + 'px';
+  ctx.setTransform(DPR,0,0,DPR,0,0);
+
+  stars = [];
+  connections = [];
+  comets = [];
+
+  const STAR_COUNT = Math.floor(45 * Math.max(0.8, W/1200)); // ~40-55 depending width
+  // create colored stars with slight size variance
+  const palette = ['#ffffff','#e9f7ff','#cfe9ff','#f6e8b1','#dfefff','#bfe9ff'];
+  for(let i=0;i<STAR_COUNT;i++){
+    const x = rand(40, W-40);
+    const y = rand(40, H-40);
+    const r = rand(0.6, 2.6);
+    const color = palette[Math.floor(rand(0,palette.length))];
+    stars.push({x,y,r,color,phase:rand(0,Math.PI*2),tw:rand(0.2,1.4),vx:rand(-0.02,0.02),vy:rand(-0.02,0.02)});
+  }
+
+  // build connections (many lines — planetarium mode); limit total connections for perf
+  for(let i=0;i<stars.length;i++){
+    for(let j=i+1;j<stars.length && connections.length < stars.length*1.4; j++){
+      const dx = stars[i].x - stars[j].x;
+      const dy = stars[i].y - stars[j].y;
+      const d = Math.hypot(dx,dy);
+      if(d < 240 && Math.random() > 0.45) connections.push([i,j]);
+    }
+  }
+}
+
+function spawnComet(){
+  if(REDUCE) return;
+  const startX = rand(W*0.1, W*0.9);
+  const startY = rand(-80, -20);
+  const angle = rand(0.2, 0.6); // move down-right
+  const speed = rand(4,9);
+  comets.push({x:startX,y:startY,vx:Math.cos(angle)*speed,vy:Math.sin(angle)*speed,len:rand(90,260),life:0,alpha:rand(0.12,0.28)});
+  if(comets.length>3) comets.shift();
+}
+
+let lastSpawn = 0;
+function render(t){
+  // t in ms
+  ctx.clearRect(0,0,W,H);
+
+  // soft nebula background
+  const g = ctx.createRadialGradient(W*0.2,H*0.18,40,W*0.6,H*0.5, Math.max(W,H));
+  g.addColorStop(0, 'rgba(126,249,182,0.015)');
+  g.addColorStop(0.28, 'rgba(155,140,255,0.01)');
+  g.addColorStop(1, 'rgba(0,0,0,0)');
+  ctx.fillStyle = g;
+  ctx.fillRect(0,0,W,H);
+
+  // draw faint milky band
+  ctx.save();
+  ctx.globalCompositeOperation = 'lighter';
+  ctx.fillStyle = 'rgba(255,255,255,0.015)';
+  ctx.beginPath();
+  ctx.ellipse(W*0.5, H*0.45, W*0.6, H*0.08, 0, 0, Math.PI*2);
+  ctx.fill();
+  ctx.restore();
+
+  // draw faint background stars (very many, subtle)
+  for(let b=0; b<450; b++){
+    // cheap RNG based on index and time for subtle flicker
+    const x = (b * 37.123) % W;
+    const y = ((b * 83.21) % H);
+    const a = 0.02 + 0.02*Math.sin((t*0.0002) + b);
+    ctx.fillStyle = `rgba(255,255,255,${a})`;
+    ctx.fillRect(x, y, 1, 1);
+  }
+
+  // draw constellation lines
+  ctx.lineWidth = 0.9;
+  for(const [i,j] of connections){
+    const a = stars[i], b = stars[j];
+    const d = Math.hypot(a.x-b.x, a.y-b.y);
+    const alpha = Math.max(0, 1 - d/300) * 0.75;
+    ctx.strokeStyle = `rgba(126,249,182,${alpha*0.25})`;
+    ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
+  }
+
+  // draw stars (with twinkle)
+  const now = t * 0.001;
+  for(const s of stars){
+    // gentle drift
+    if(!REDUCE){
+      s.x += s.vx;
+      s.y += s.vy;
+      if(s.x < 10) s.x = 10; if(s.x > W-10) s.x = W-10;
+      if(s.y < 10) s.y = 10; if(s.y > H-10) s.y = H-10;
+    }
+    s.phase += 0.01 * (s.tw);
+    const tw = 0.6 + 0.4*Math.sin(s.phase*1.7 + now*0.8);
+    // glow
+    const grd = ctx.createRadialGradient(s.x, s.y, 0, s.x, s.y, s.r*6);
+    grd.addColorStop(0, hexWithAlpha(s.color, 0.95*tw));
+    grd.addColorStop(0.4, hexWithAlpha(s.color, 0.35*tw));
+    grd.addColorStop(1, 'rgba(255,255,255,0)');
+    ctx.fillStyle = grd;
+    ctx.beginPath(); ctx.arc(s.x, s.y, s.r*2.2, 0, Math.PI*2); ctx.fill();
+
+    // tiny core
+    ctx.fillStyle = s.color;
+    ctx.beginPath(); ctx.arc(s.x, s.y, Math.max(0.6, s.r*0.6), 0, Math.PI*2); ctx.fill();
+  }
+
+  // draw comets
+  for(let i=comets.length-1;i>=0;i--){
+    const c = comets[i];
+    c.x += c.vx; c.y += c.vy; c.life++;
+    // tail
+    const tx = c.x - c.vx * c.len, ty = c.y - c.vy * c.len;
+    const grad = ctx.createLinearGradient(c.x,c.y,tx,ty);
+    grad.addColorStop(0, `rgba(255,255,255,${0.95*c.alpha})`);
+    grad.addColorStop(1, 'rgba(255,255,255,0)');
+    ctx.strokeStyle = grad;
+    ctx.lineWidth = 2.4;
+    ctx.beginPath(); ctx.moveTo(c.x,c.y); ctx.lineTo(tx,ty); ctx.stroke();
+    // head
+    ctx.fillStyle = `rgba(255,255,255,${Math.min(1,0.9*c.alpha + 0.1)})`;
+    ctx.beginPath(); ctx.arc(c.x,c.y,2.8,0,Math.PI*2); ctx.fill();
+
+    if(c.x > W+200 || c.y > H+200 || c.life > 400) comets.splice(i,1);
+  }
+
+  // spawn comets occasionally
+  if(!REDUCE && (t - lastSpawn) > 2200 && Math.random() < 0.35){
+    spawnComet(); lastSpawn = t;
+  }
+
+  requestAnimationFrame(render);
+}
+function hexWithAlpha(hex, a){
+  // hex like #rrggbb
+  const r = parseInt(hex.slice(1,3),16);
+  const g = parseInt(hex.slice(3,5),16);
+  const b = parseInt(hex.slice(5,7),16);
+  return `rgba(${r},${g},${b},${a})`;
+}
+
+/* init */
+initPlanetarium();
+requestAnimationFrame(render);
+window.addEventListener('resize', () => initPlanetarium());
+
+/* --------------- Form handling + Zodiac + constellation highlight --------------- */
+const form = document.getElementById('regForm');
+const overlay = document.getElementById('overlay');
+const panel = document.getElementById('panel');
+const welcomeText = document.getElementById('welcomeText');
+const zodiacText = document.getElementById('zodiacText');
+
+function zodiakFromDate(d){
+  // expects Date
+  const m = d.getMonth()+1, day = d.getDate();
+  if((m==1 && day>=20) || (m==2 && day<=18)) return 'Aquarius';
+  if((m==2 && day>=19) || (m==3 && day<=20)) return 'Pisces';
+  if((m==3 && day>=21) || (m==4 && day<=19)) return 'Aries';
+  if((m==4 && day>=20) || (m==5 && day<=20)) return 'Taurus';
+  if((m==5 && day>=21) || (m==6 && day<=20)) return 'Gemini';
+  if((m==6 && day>=21) || (m==7 && day<=22)) return 'Cancer';
+  if((m==7 && day>=23) || (m==8 && day<=22)) return 'Leo';
+  if((m==8 && day>=23) || (m==9 && day<=22)) return 'Virgo';
+  if((m==9 && day>=23) || (m==10 && day<=22)) return 'Libra';
+  if((m==10 && day>=23) || (m==11 && day<=21)) return 'Scorpio';
+  if((m==11 && day>=22) || (m==12 && day<=21)) return 'Sagittarius';
+  return 'Capricorn';
+}
+
+// deterministic subset selection for zodiac highlight
+function selectZodiacIndices(zodiacName, starsCount, want=14){
+  // hash zodiacName to seed
+  let seed = 0;
+  for(let i=0;i<zodiacName.length;i++) seed = (seed*31 + zodiacName.charCodeAt(i)) >>> 0;
+  const idxs = [];
+  let i = 0;
+  while(idxs.length < Math.min(want, Math.max(6, Math.floor(starsCount*0.25))) && i < starsCount*4){
+    seed = (seed * 1664525 + 1013904223) >>> 0;
+    const pick = seed % starsCount;
+    if(!idxs.includes(pick)) idxs.push(pick);
+    i++;
+  }
+  return idxs;
+}
+
+function highlightZodiac(zName){
+  // brighten a subset of stars and draw thick connections among them temporarily
+  const indices = selectZodiacIndices(zName, stars.length, 16);
+  // draw highlight overlay on top using ctx
+  // We'll animate pulses for several seconds
+  let steps = 0;
+  const maxSteps = REDUCE ? 1 : 80;
+  (function pulse(){
+    steps++;
+    // subtle radial glow around selected stars
+    for(const idx of indices){
+      const s = stars[idx];
+      const g = ctx.createRadialGradient(s.x, s.y, 0, s.x, s.y, s.r*18);
+      const alpha = 0.06 + 0.18 * (1 - Math.abs(Math.sin(steps*0.08)));
+      g.addColorStop(0, `rgba(126,249,182,${alpha})`);
+      g.addColorStop(1, 'rgba(126,249,182,0)');
+      ctx.fillStyle = g;
+      ctx.beginPath(); ctx.arc(s.x, s.y, s.r*18,0,Math.PI*2); ctx.fill();
+    }
+    // thicker lines among selected stars
+    ctx.lineWidth = 1.2;
+    for(let a=0;a<indices.length;a++){
+      for(let b=a+1;b<indices.length;b++){
+        const A = stars[indices[a]], B = stars[indices[b]];
+        const d = Math.hypot(A.x-B.x, A.y-B.y);
+        if(d < 320){
+          ctx.strokeStyle = `rgba(158,230,205,${0.04 + 0.18 * Math.abs(Math.sin(steps*0.07))})`;
+          ctx.beginPath(); ctx.moveTo(A.x,A.y); ctx.lineTo(B.x,B.y); ctx.stroke();
+        }
+      }
+    }
+    if(steps < maxSteps && !REDUCE) requestAnimationFrame(pulse);
+  })();
+}
+
+form.addEventListener('submit', e=>{
+  e.preventDefault();
+  const pass = document.getElementById('pass').value;
+  const conf = document.getElementById('confirm').value;
+  if(pass !== conf){ alert('Password dan konfirmasi berbeda — cek lagi.'); return; }
+  const name = document.getElementById('username').value.trim() || 'Traveller';
+  const dobVal = document.getElementById('dob').value;
+  if(!dobVal){ alert('Isi tanggal lahir'); return; }
+  const dob = new Date(dobVal);
+  const z = zodiakFromDate(dob);
+
+  // cinematic transition: dim card, brighten scene, then overlay panel
+  document.querySelector('.card').style.transition = 'all 1.0s ease';
+  document.querySelector('.card').style.opacity = '0';
+  // brightening background: overlay subtle bright radial
+  const brightAnim = document.createElement('div');
+  brightAnim.style.position='fixed'; brightAnim.style.inset='0'; brightAnim.style.zIndex='8';
+  brightAnim.style.background='radial-gradient(circle at 50% 40%, rgba(255,255,255,0.06), rgba(255,255,255,0.0) 30%)';
+  brightAnim.style.transition='opacity 1s ease'; brightAnim.style.opacity='0';
+  document.body.appendChild(brightAnim);
+  requestAnimationFrame(()=> brightAnim.style.opacity='1');
+
+  setTimeout(()=>{
+    // show overlay panel
+    overlay.setAttribute('aria-hidden','false');
+    panel.classList.add('show');
+    welcomeText.textContent = `Welcome, ${name}! Hope u enjoy ✨`;
+    zodiacText.textContent = z;
+    // highlight zodiac on canvas
+    highlightZodiac(z);
+  }, 900);
+
+  // remove brightAnim after a while
+  setTimeout(()=>{ brightAnim.style.opacity='0'; setTimeout(()=> brightAnim.remove(),900); }, 3500);
+});
+
+/* accessibility: allow Enter on primary button */
+document.addEventListener('keydown', e=>{
+  if(e.key === 'Enter' && document.activeElement && ['INPUT','BUTTON'].includes(document.activeElement.tagName)){
+    // let form submit naturally
+  }
+});
+window.addEventListener('load', ()=>{
+  document.body.classList.add('loaded');
+});
+</script>
+</body>
+</html>
